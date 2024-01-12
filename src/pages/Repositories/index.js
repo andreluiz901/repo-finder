@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { BackButton, Conteiner, IssuesList, Loading, Owner } from "./styles";
+import {
+  BackButton,
+  Conteiner,
+  IssuesList,
+  Loading,
+  Owner,
+  PageActions,
+} from "./styles";
 import api from "../../services/api";
 import { FaArrowLeft } from "react-icons/fa";
 
@@ -9,6 +16,7 @@ export default function Repository() {
   const [repo, setRepo] = useState({});
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     async function load() {
@@ -27,6 +35,25 @@ export default function Repository() {
     }
     load();
   }, [repository]);
+
+  useEffect(() => {
+    async function loadIssue() {
+      const response = await api.get(`/repos/${repository}/issues`, {
+        params: {
+          state: "open",
+          page,
+          per_page: 5,
+        },
+      });
+
+      setIssues(response.data);
+    }
+    loadIssue();
+  }, [page, repository]);
+
+  function handlePage(isAdvancePage) {
+    setPage(isAdvancePage ? page + 1 : page - 1);
+  }
 
   if (loading) {
     return (
@@ -65,6 +92,15 @@ export default function Repository() {
           </li>
         ))}
       </IssuesList>
+
+      <PageActions>
+        <button type="button" onClick={() => handlePage(0)} disabled={page < 2}>
+          Voltar
+        </button>
+        <button type="button" onClick={() => handlePage(1)}>
+          Próxima
+        </button>
+      </PageActions>
     </Conteiner>
   );
 }
