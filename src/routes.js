@@ -8,7 +8,7 @@ export default function RoutesApp() {
     <BrowserRouter>
       <Routes>
         <Route path="/" Component={Main} />
-        <Route path="/repositories/:reposiroty" Component={Repositories} />
+        <Route path="/repositories/:repository" Component={Repositories} />
       </Routes>
     </BrowserRouter>
   );

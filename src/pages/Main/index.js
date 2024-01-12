@@ -1,7 +1,8 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { Conteiner, Form, SubmitButton, List, DeleteButton } from "./styles";
 import { FaGithub, FaPlus, FaSpinner, FaBars, FaTrash } from "react-icons/fa";
 import api from "../../services/api";
+import { Link } from "react-router-dom";
 
 export default function Main() {
   const [newRepo, setNewRepo] = useState("");
@@ -101,9 +102,9 @@ export default function Main() {
               </DeleteButton>
               {repo.name}
             </span>
-            <a href="">
+            <Link to={`/repositories/${encodeURIComponent(repo.name)}`}>
               <FaBars size={20} />
-            </a>
+            </Link>
           </li>
         ))}
       </List>
