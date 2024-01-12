@@ -73,7 +73,7 @@ export default function Main() {
     <Conteiner>
       <h1>
         <FaGithub size={25} />
-        Meus Repositórios
+        Repo Finder
       </h1>
 
       <Form onSubmit={handleSubmit} error={alert}>
