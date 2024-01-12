@@ -53,7 +53,7 @@ export const BackButton = styled(Link)`
 export const IssuesList = styled.ul`
   margin-top: 30px;
   padding-top: 30px;
-  border-top: 8px solid #eee;
+  border-top: 6px solid #eee;
   list-style: none;
 
   li {
@@ -123,6 +123,28 @@ export const PageActions = styled.div`
     &:disabled {
       cursor: not-allowed;
       opacity: 0.5;
+    }
+  }
+`;
+
+export const ListIssuesActions = styled.div`
+  display: block;
+  align-items: center;
+  padding-top: 8px;
+  margin-left: 5px 10px;
+
+  button {
+    outline: 0;
+    border: 0;
+    background: #222;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-left: 15px;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
     }
   }
 `;

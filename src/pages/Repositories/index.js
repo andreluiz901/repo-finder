@@ -7,6 +7,7 @@ import {
   Loading,
   Owner,
   PageActions,
+  ListIssuesActions,
 } from "./styles";
 import api from "../../services/api";
 import { FaArrowLeft } from "react-icons/fa";
@@ -17,6 +18,7 @@ export default function Repository() {
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [issueState, setIssueState] = useState("all");
 
   useEffect(() => {
     async function load() {
@@ -24,7 +26,7 @@ export default function Repository() {
         api.get(`/repos/${repository}`),
         api.get(`/repos/${repository}/issues`, {
           params: {
-            state: "open",
+            state: issueState,
             per_page: 5,
           },
         }),
@@ -34,13 +36,13 @@ export default function Repository() {
       setLoading(false);
     }
     load();
-  }, [repository]);
+  }, [issueState, repository]);
 
   useEffect(() => {
     async function loadIssue() {
       const response = await api.get(`/repos/${repository}/issues`, {
         params: {
-          state: "open",
+          state: issueState,
           page,
           per_page: 5,
         },
@@ -49,10 +51,14 @@ export default function Repository() {
       setIssues(response.data);
     }
     loadIssue();
-  }, [page, repository]);
+  }, [issueState, page, repository]);
 
   function handlePage(isAdvancePage) {
     setPage(isAdvancePage ? page + 1 : page - 1);
+  }
+
+  function handleStateIssues(issueState) {
+    setIssueState(issueState);
   }
 
   if (loading) {
@@ -68,12 +74,23 @@ export default function Repository() {
       <BackButton to={"/"}>
         <FaArrowLeft color="#000" size={35} />
       </BackButton>
-
       <Owner>
         <img src={repo.owner.avatar_url} alt={repo.owner.login}></img>
         <h1>{repo.name}</h1>
         <p>{repo.description}</p>
       </Owner>
+
+      <ListIssuesActions>
+        <button type="button" onClick={() => handleStateIssues("all")}>
+          Issues: All
+        </button>
+        <button type="button" onClick={() => handleStateIssues("open")}>
+          Issues: Open
+        </button>
+        <button type="button" onClick={() => handleStateIssues("closed")}>
+          Issues: Closed
+        </button>
+      </ListIssuesActions>
 
       <IssuesList>
         {issues.map((issue) => (
@@ -92,7 +109,6 @@ export default function Repository() {
           </li>
         ))}
       </IssuesList>
-
       <PageActions>
         <button type="button" onClick={() => handlePage(0)} disabled={page < 2}>
           Voltar
