@@ -127,24 +127,19 @@ export const PageActions = styled.div`
   }
 `;
 
-export const ListIssuesActions = styled.div`
-  display: block;
-  align-items: center;
-  padding-top: 8px;
-  margin-left: 5px 10px;
+export const FilterList = styled.div`
+  margin: 15px 0;
 
   button {
     outline: 0;
     border: 0;
-    background: #222;
-    color: #fff;
-    padding: 5px 10px;
+    padding: 8px;
     border-radius: 4px;
-    margin-left: 15px;
+    margin: 0 3px;
 
-    &:disabled {
-      cursor: not-allowed;
-      opacity: 0.7;
+    &:nth-child(${(props) => props.active + 1}) {
+      background: #0d2636;
+      color: #fff;
     }
   }
 `;

@@ -7,7 +7,7 @@ import {
   Loading,
   Owner,
   PageActions,
-  ListIssuesActions,
+  FilterList,
 } from "./styles";
 import api from "../../services/api";
 import { FaArrowLeft } from "react-icons/fa";
@@ -18,7 +18,12 @@ export default function Repository() {
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [issueState, setIssueState] = useState("all");
+  const [filters, _setFilters] = useState([
+    { state: "all", label: "Todas", active: true },
+    { state: "open", label: "Abertas", active: false },
+    { state: "closed", label: "Fechadas", active: false },
+  ]);
+  const [filterIndex, setFilterIndex] = useState(0);
 
   useEffect(() => {
     async function load() {
@@ -26,7 +31,7 @@ export default function Repository() {
         api.get(`/repos/${repository}`),
         api.get(`/repos/${repository}/issues`, {
           params: {
-            state: issueState,
+            state: filters.find((f) => f.active).state,
             per_page: 5,
           },
         }),
@@ -36,13 +41,13 @@ export default function Repository() {
       setLoading(false);
     }
     load();
-  }, [issueState, repository]);
+  }, [filterIndex, filters, repository]);
 
   useEffect(() => {
     async function loadIssue() {
       const response = await api.get(`/repos/${repository}/issues`, {
         params: {
-          state: issueState,
+          state: filters[filterIndex].state,
           page,
           per_page: 5,
         },
@@ -51,14 +56,14 @@ export default function Repository() {
       setIssues(response.data);
     }
     loadIssue();
-  }, [issueState, page, repository]);
+  }, [filterIndex, filters, page, repository]);
 
   function handlePage(isAdvancePage) {
     setPage(isAdvancePage ? page + 1 : page - 1);
   }
 
-  function handleStateIssues(issueState) {
-    setIssueState(issueState);
+  function handleFilter(index) {
+    setFilterIndex(index);
   }
 
   if (loading) {
@@ -80,18 +85,17 @@ export default function Repository() {
         <p>{repo.description}</p>
       </Owner>
 
-      <ListIssuesActions>
-        <button type="button" onClick={() => handleStateIssues("all")}>
-          Issues: All
-        </button>
-        <button type="button" onClick={() => handleStateIssues("open")}>
-          Issues: Open
-        </button>
-        <button type="button" onClick={() => handleStateIssues("closed")}>
-          Issues: Closed
-        </button>
-      </ListIssuesActions>
-
+      <FilterList active={filterIndex}>
+        {filters.map((filter, index) => (
+          <button
+            type="button"
+            key={filter.label}
+            onClick={() => handleFilter(index)}
+          >
+            {filter.label}
+          </button>
+        ))}
+      </FilterList>
       <IssuesList>
         {issues.map((issue) => (
           <li key={String(issue.id)}>
