@@ -1,28 +1,49 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Conteiner, Form, SubmitButton, List, DeleteButton } from "./styles";
 import { FaGithub, FaPlus, FaSpinner, FaBars, FaTrash } from "react-icons/fa";
 import api from "../../services/api";
 
 export default function Main() {
   const [newRepo, setNewRepo] = useState("");
-  const [repositories, setRepositories] = useState([]);
+  const initRepositories = localStorage.getItem("repos");
+  const [repositories, setRepositories] = useState(
+    initRepositories ? JSON.parse(initRepositories) : []
+  );
   const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState(null);
 
   const handleSubmit = useCallback(
     (e) => {
       e.preventDefault();
       async function sumbit() {
         setLoading(true);
+        setAlert(null);
         try {
+          if (newRepo === "") {
+            throw new Error("Você precisa indicar um repositório.");
+          }
+
           const response = await api.get(`repos/${newRepo}`);
-          console.log("response: ", response);
+
+          const hasRepo = repositories.find((repo) => repo.name === newRepo);
+          if (hasRepo) {
+            throw new Error("Você já informou este repositório.");
+          }
           const data = {
             name: response.data.full_name,
           };
 
-          setRepositories([...repositories, data]);
+          setRepositories((oldStateRepository) => {
+            return oldStateRepository.concat([data]);
+          });
+
           setNewRepo("");
+          localStorage.setItem(
+            "repos",
+            JSON.stringify(repositories.concat([data]))
+          );
         } catch (error) {
+          setAlert(true);
           console.log(error);
         } finally {
           setLoading(false);
@@ -36,6 +57,7 @@ export default function Main() {
 
   function handleInputChange(e) {
     setNewRepo(e.target.value);
+    setAlert(null);
   }
 
   const handleDelete = useCallback(
@@ -53,7 +75,7 @@ export default function Main() {
         Meus Repositórios
       </h1>
 
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} error={alert}>
         <input
           type="text"
           placeholder="Adicionar repositórios"
@@ -61,7 +83,7 @@ export default function Main() {
           onChange={handleInputChange}
         />
 
-        <SubmitButton Loading={loading ? 1 : 0}>
+        <SubmitButton loading={loading ? 1 : 0}>
           {loading ? (
             <FaSpinner color="#FFF" size={14} />
           ) : (
